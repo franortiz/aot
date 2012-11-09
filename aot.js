@@ -757,6 +757,7 @@ $(document).ready(function () {
         },
         stop: function (event, ui) {
             if (v.readyState >= 1) {
+            	sliderPosMoving = false;
                 var pos = sliderPos.slider('value') * v.duration / 100.0;
                 v.currentTime = pos;
             }
