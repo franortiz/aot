@@ -13,6 +13,8 @@ var timeLineCenter = false;
 var timeLineNewStart = -1.0;
 var timeLineNewEnd = -1.0;
 var timeLineIsMouseDown = false;
+var timeLineIsCtrlDown = false;
+var timeLineDownSeconds = 0.0;
 var sliderPos = null;
 var sliderPosMoving = false;
 var storage; // window.localStorage
@@ -182,7 +184,7 @@ function drawTimeLine(t) {
     // draw grid
     ctx.beginPath();
     ctx.lineWidth = 1;
-    ctx.strokeStyle = 'rgba(200, 200, 200, 0.2)' // line color
+    ctx.strokeStyle = 'rgba(200, 200, 200, 0.2)'; // line color
     for (var y = 0; y < h; y += 10) {
         ctx.moveTo(0, y);
         ctx.lineTo(w, y);
@@ -213,7 +215,7 @@ function drawTimeLine(t) {
     var pos = secondsToTimeLinePosition(Math.floor(secPos - timeLineStart));
     ctx.beginPath();
     ctx.lineWidth = 2;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)' // line color
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'; // line color
     ctx.fillStyle = "white";
     while ((pos - timeLineStart) < w) {
         secPos += 0.5;
@@ -234,13 +236,13 @@ function drawTimeLine(t) {
     for (var i = 0; i < len; i++) {
         sub = subtitles[i];
         if (sub.end > timeLineStart && sub.start < end) {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)' // paragraph color
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'; // paragraph color
             if (sub.start <= t && sub.end > t)
-                ctx.fillStyle = 'rgba(255, 20, 20, 0.5)' // selected paragraph color
+                ctx.fillStyle = 'rgba(255, 20, 20, 0.5)'; // selected paragraph color
             subStartPos = secondsToTimeLinePosition(sub.start - timeLineStart);
             ctx.fillRect(subStartPos, 0, secondsToTimeLinePosition(sub.duration), h);
             //ctx.fillText(sub.number + "\n" + sub.text, subStartPos + 5, 10);
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)' // paragrap h color
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'; // paragrap h color
             drawMultilineText("#" + sub.number + "\n" + sub.text, subStartPos + 5, 10, 10);
             //ctx.fillText(sub.text, subStartPos + 5, h-15);
         }
@@ -256,10 +258,10 @@ function drawTimeLine(t) {
         }
         sub = new paragraph(0, start, end, "NEW");
         if (sub.end > timeLineStart && sub.start < end) {
-            ctx.fillStyle = 'rgba(0, 255, 255, 0.5)' // paragraph color
+            ctx.fillStyle = 'rgba(0, 255, 255, 0.5)'; // paragraph color
             subStartPos = secondsToTimeLinePosition(sub.start - timeLineStart);
             ctx.fillRect(subStartPos, 0, secondsToTimeLinePosition(sub.duration), h);
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)' // paragraph color
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'; // paragraph color
             //drawMultilineText("#" + sub.number + "\n" + sub.text, subStartPos + 5, 10, 10);
         }
     }
@@ -267,7 +269,7 @@ function drawTimeLine(t) {
     // draw current video position
     ctx.beginPath();
     ctx.lineWidth = 1;
-    ctx.strokeStyle = 'rgba(50, 255, 0, 0.6)' // video pos color (lime)
+    ctx.strokeStyle = 'rgba(50, 255, 0, 0.6)'; // video pos color (lime)
     var videoPos = secondsToTimeLinePosition(t - timeLineStart);
     ctx.moveTo(videoPos, 0);
     ctx.lineTo(videoPos, h);
@@ -327,6 +329,7 @@ function timeLineMouseDown(e, pos) {
         timeLineNewStart = -1.0;
         timeLineNewEnd = -1.0;
     }
+    timeLineDownSeconds = seconds;
     for (var i = 0; i < len; i++) {
         var sub = subtitles[i];
         if (seconds + 0.05 > sub.start && seconds - 0.05 < sub.start) {
@@ -342,7 +345,7 @@ function timeLineMouseDown(e, pos) {
         } else if (sub.start <= seconds && sub.end > seconds) {
             timeLineMoveStart = false;
             timeLineMoveEnd = false;
-            timeLineMoveIndex = i;
+			timeLineMoveIndex = timeLineIsCtrlDown ? i : -1;
             timeLineMoveSub = seconds - sub.start;
             return;
         }
@@ -563,6 +566,14 @@ function videoGoBack(seconds) {
     if (t < 0)
         t = 0;
     v.currentTime = t;
+}
+
+function videoGo(seconds) {
+    if (v.readyState < 1)
+        return;
+    if (seconds < 0)
+    	seconds = 0;
+    v.currentTime = seconds;
 }
 
 function removeFontTag(text) {
@@ -857,17 +868,27 @@ $(document).ready(function () {
         var cstyle = timeLineMouseOver(pos);
         $(canvas).css("cursor", cstyle);
         if (cstyle == 'default' && timeLineIsMouseDown) {
-            if (timeLineNewEnd >= 0 && timeLineStart >= 0)
-                timeLineNewEnd = timeLinePositiontoSeconds(pos) + timeLineStart;
+        	if(timeLineIsCtrlDown) {
+	            if (timeLineNewEnd >= 0 && timeLineStart >= 0)
+	                timeLineNewEnd = timeLinePositiontoSeconds(pos) + timeLineStart;
+        	} else {  
+        		// mouse move
+        		console.log("down");
+        		var currentTime = timeLinePositiontoSeconds(pos) + timeLineStart;
+        		videoGoBack((currentTime - timeLineDownSeconds) / 1.1); 
+        		timeLineDownSeconds = currentTime;        		
+        	}
         }
     }).mouseleave(function () {
         timeLineMoveStart = false;
         timeLineMoveEnd = false;
         timeLineMoveIndex = -1;
         timeLineIsMouseDown = false;
+        timeLineIsCtrlDown = false;
     });
     $(canvas).on('mousedown', function (e) {
         var pos = e.pageX - $(canvas).offset().left;
+        timeLineIsCtrlDown = e.ctrlKey;
         timeLineMouseDown(e, pos);
         timeLineIsMouseDown = true;
     });
@@ -876,6 +897,7 @@ $(document).ready(function () {
         timeLineMoveEnd = false;
         timeLineMoveIndex = -1;
         timeLineIsMouseDown = false;
+        timeLineIsCtrlDown = false;
         if (timeLineNewStart <= 0 || timeLineNewEnd <= 0 || Math.abs(timeLineNewStart - timeLineNewEnd) <= 0.2) {
             timeLineNewStart = -1.0;
             timeLineNewEnd = -1.0;
@@ -1166,6 +1188,14 @@ $(document).ready(function () {
         hideMsgBox();
         v.play();
     });
+    $('#videoOpenLocalSource').on('change', function (e) {  
+    	if(v.canPlayType(this.files[0].type)) {    		
+    		v.src = URL.createObjectURL(this.files[0]);    	
+    		hideMsgBox();
+    		v.play();
+    	}
+    });
+		
     $('#subtitleOpen').on('click', function (e) {
         if ($("#openSubtitleIframe").length == 0)
             $("#openSubtitleIframeContainer").html('<iframe id="openSubtitleIframe" src="/SubtitleEdit/OnlineOpenSubtitle"></iframe>');
