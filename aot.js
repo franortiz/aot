@@ -594,20 +594,6 @@ function removeFontTag(text) {
     return text;
 }
 
-function importGoogleTranslation(table) {
-    hideMsgBox();
-    var i = 0;        
-    var trs = $(table).find('tr');
-    trs.each(function (i, n) {
-        var text = $(n).find("td").eq(0).html() + "";
-        text = removeFontTag(text);            
-        subtitles[i].text = text;
-        i++;
-    });
-    bindSubtitles();
-    if (subtitles.length > 0)
-        SelectListViewIndex(0);
-}
 
 function openSubtitle() {
     hideMsgBox();
@@ -1177,8 +1163,13 @@ $(document).ready(function () {
         showFullscreenDialog($("#aboutText"));
     });
     $('#videoOpen').on('click', function (e) {
-        $(this).parent("ul").hide();
-        showFullscreenDialog($("#videoOpenText"));
+        $(this).parent("ul").hide();        
+        $("#videoOpenText").dialog({            
+            modal: true,
+            width: 340,
+            height: 200
+        });
+        
     });
     $('#buttonLoadVideo').on('click', function (e) {
         var src = $('#videoOpenSource').val();
