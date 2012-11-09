@@ -345,10 +345,10 @@ function timeLineMouseDown(e, pos) {
         } else if (sub.start <= seconds && sub.end > seconds) {
             timeLineMoveStart = false;
             timeLineMoveEnd = false;
-            timeLineMoveIndex = timeLineIsCtrlDown ? i : -1;
+			timeLineMoveIndex = timeLineIsCtrlDown ? i : -1;
             timeLineMoveSub = seconds - sub.start;
             return;
-        }
+        }        
     }
     if (e.which != 3) {
         timeLineNewStart = seconds;
@@ -757,6 +757,7 @@ $(document).ready(function () {
         },
         stop: function (event, ui) {
             if (v.readyState >= 1) {
+            	sliderPosMoving = false;
                 var pos = sliderPos.slider('value') * v.duration / 100.0;
                 v.currentTime = pos;
             }
@@ -854,7 +855,6 @@ $(document).ready(function () {
         }
     });
     $(canvas).on('mousewheel', function (event, delta) {
-    	console.log("wheel delta: " +delta);
         if (v.readyState >= 1) {
             if (delta > 0)
                 v.currentTime += 1.5;
@@ -1190,6 +1190,14 @@ $(document).ready(function () {
         hideMsgBox();
         v.play();
     });
+    $('#videoOpenLocalSource').on('change', function (e) {  
+    	if(v.canPlayType(this.files[0].type)) {    		
+    		v.src = URL.createObjectURL(this.files[0]);    	
+    		hideMsgBox();
+    		v.play();
+    	}
+    });
+		
     $('#subtitleOpen').on('click', function (e) {
         if ($("#openSubtitleIframe").length == 0)
             $("#openSubtitleIframeContainer").html('<iframe id="openSubtitleIframe" src="/SubtitleEdit/OnlineOpenSubtitle"></iframe>');
