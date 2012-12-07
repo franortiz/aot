@@ -180,6 +180,11 @@ a:hover {
 	padding-right: 20px;
 }
 
+#timelineContextMenu {
+	display: none;
+	position: absolute;
+}
+
 #listviewContextMenu {
 	position: absolute;
 	display: block;

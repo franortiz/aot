@@ -28,6 +28,22 @@ function paragraph(number, start, end, text) {
     this.text = text;
 }
 
+function Paragraph(number, start, end, text) {
+	if(typeof(number) == "object") {
+		this.number = number.number;
+		this.start = number.start;
+		this.end = number.end;
+		this.text = number.text;
+	} else {
+		this.number = number;
+		this.start = start;
+		this.end = end;
+		this.text = text;
+	}
+    this.duration = function() { return this.end - this.start; };
+}
+
+
 function renumberSubtitlesInTable() {
     var trs = $("#subtitleTableBody tr");
     trs.each(function (i, n) {
@@ -72,11 +88,11 @@ function srtToSeconds(srt) {
 
 
 function getSubTr(sub) {
-    return '<tr><td class="subNumber">' + sub.number + '</td><td class="subStart">' + secondsToSrtTime(sub.start) + '</td><td class="subEnd">' + secondsToSrtTime(sub.end) + '</td><td class="subDuration">' + sub.duration.toFixed(3) + '</td><td class="subText">' + sub.text + '</td></tr>';
+    return '<tr><td class="subNumber">' + sub.number + '</td><td class="subStart">' + secondsToSrtTime(sub.start) + '</td><td class="subEnd">' + secondsToSrtTime(sub.end) + '</td><td class="subDuration">' + sub.duration().toFixed(3) + '</td><td class="subText">' + sub.text + '</td></tr>';
 }
 
 function getSubTds(sub) {
-    return '<td class="subNumber">' + sub.number + '</td><td class="subStart">' + secondsToSrtTime(sub.start) + '</td><td class="subEnd">' + secondsToSrtTime(sub.end) + '</td><td class="subDuration">' + sub.duration.toFixed(3) + '</td><td class="subText">' + sub.text + '</td>';
+    return '<td class="subNumber">' + sub.number + '</td><td class="subStart">' + secondsToSrtTime(sub.start) + '</td><td class="subEnd">' + secondsToSrtTime(sub.end) + '</td><td class="subDuration">' + sub.duration().toFixed(3) + '</td><td class="subText">' + sub.text + '</td>';
 }
 
 function getParagraphFromTr(tr) {
@@ -87,9 +103,9 @@ function getParagraphFromTr(tr) {
         var end = tds.eq(2).html();
         var text = tds.eq(4).html();
         text = text.replace("\n", "<br>");
-        return new paragraph(number, srtToSeconds(start), srtToSeconds(end), text);
+        return new Paragraph(number, srtToSeconds(start), srtToSeconds(end), text);
     }
-    return new paragraph(0, 0, 0, "empty");
+    return new Paragraph(0, 0, 0, "empty");
 }
 
 function updateParagraphFromSub(index, sub) {
@@ -240,7 +256,7 @@ function drawTimeLine(t) {
             if (sub.start <= t && sub.end > t)
                 ctx.fillStyle = 'rgba(255, 20, 20, 0.5)'; // selected paragraph color
             subStartPos = secondsToTimeLinePosition(sub.start - timeLineStart);
-            ctx.fillRect(subStartPos, 0, secondsToTimeLinePosition(sub.duration), h);
+            ctx.fillRect(subStartPos, 0, secondsToTimeLinePosition(sub.duration()), h);
             //ctx.fillText(sub.number + "\n" + sub.text, subStartPos + 5, 10);
             ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'; // paragrap h color
             drawMultilineText("#" + sub.number + "\n" + sub.text, subStartPos + 5, 10, 10);
@@ -256,11 +272,11 @@ function drawTimeLine(t) {
             start = end;
             end = temp;
         }
-        sub = new paragraph(0, start, end, "NEW");
+        sub = new Paragraph(0, start, end, "NEW");
         if (sub.end > timeLineStart && sub.start < end) {
             ctx.fillStyle = 'rgba(0, 255, 255, 0.5)'; // paragraph color
             subStartPos = secondsToTimeLinePosition(sub.start - timeLineStart);
-            ctx.fillRect(subStartPos, 0, secondsToTimeLinePosition(sub.duration), h);
+            ctx.fillRect(subStartPos, 0, secondsToTimeLinePosition(sub.duration()), h);
             ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'; // paragraph color
             //drawMultilineText("#" + sub.number + "\n" + sub.text, subStartPos + 5, 10, 10);
         }
@@ -294,15 +310,14 @@ function timeLineMouseOver(pos) {
     if (timeLineMoveIndex > -1) {
         if (timeLineMoveStart) {
             subtitles[timeLineMoveIndex].start = seconds;
-            subtitles[timeLineMoveIndex].duration = subtitles[timeLineMoveIndex].end - subtitles[timeLineMoveIndex].start;
             updateParagraphFromSub(timeLineMoveIndex, subtitles[timeLineMoveIndex]);
         } else if (timeLineMoveEnd) {
             subtitles[timeLineMoveIndex].end = seconds;
-            subtitles[timeLineMoveIndex].duration = subtitles[timeLineMoveIndex].end - subtitles[timeLineMoveIndex].start;
             updateParagraphFromSub(timeLineMoveIndex, subtitles[timeLineMoveIndex]);
         } else {
+        	var duration = subtitles[timeLineMoveIndex].duration();
             subtitles[timeLineMoveIndex].start = seconds - timeLineMoveSub;
-            subtitles[timeLineMoveIndex].end = subtitles[timeLineMoveIndex].start + subtitles[timeLineMoveIndex].duration;
+            subtitles[timeLineMoveIndex].end = subtitles[timeLineMoveIndex].start + duration;
             updateParagraphFromSub(timeLineMoveIndex, subtitles[timeLineMoveIndex]);
         }
         return;
@@ -439,7 +454,7 @@ function timeLineContextMenuPopup(e) {
     var y = e.pageY - 20;
     var pos = e.pageX - $(canvas).offset().left;
     timeLineContextMenuIndex = getTimeLineIndexFromPos(pos);
-
+    /*
     if (timeLineContextMenuIndex != -1) {
         SelectListViewIndex(timeLineContextMenuIndex);
         $('#timeLineDelete').show();
@@ -449,7 +464,9 @@ function timeLineContextMenuPopup(e) {
         $('#timeLineInsertHere').hide();
         showTimeLineContextMenu(x, y);
     }
-
+	*/
+    $('#timelineContextMenu').css({left: x + "px", top: y + "px"}).show();
+    
     if (timeLineNewEnd >= 0 && timeLineNewStart >= 0 && Math.abs(timeLineNewStart - timeLineNewEnd) > 0.1) {
         var start = timeLineNewStart;
         var end = timeLineNewEnd;
@@ -529,7 +546,6 @@ function mergeWithNext(index) {
     var next = subtitles[index + 1];
     s.end = next.end;
     s.text = s.text + " " + next.text;
-    s.duration = s.end - s.start;
     subtitles.splice(index + 1, 1);
     bindSubtitles();
     SelectListViewIndex(index);
@@ -616,8 +632,8 @@ function openSubtitle() {
 
 function loadSettings() {
     if (storage) {
-        timeLineCenter = storage["SEOnline_settings_TimeLineCenter"] == "true";
-        var autoSave = storage["SEOnline_settings_AutoSave"] == "true";
+        timeLineCenter = storage["aot_settings_TimeLineCenter"] == "true";
+        var autoSave = storage["aot_settings_AutoSave"] == "true";
         if (timeLineCenter)
             $('#settingCenterTimeLine').attr("checked", "checked");
         if (autoSave)
@@ -627,25 +643,28 @@ function loadSettings() {
 
 function saveSettings() {
     if (storage) {
-        storage["SEOnline_settings_TimeLineCenter"] = timeLineCenter;
-        storage["SEOnline_settings_AutoSave"] = $('#settingAutoSave').attr('checked') == 'checked';
+        storage["aot_settings_TimeLineCenter"] = timeLineCenter;
+        storage["aot_settings_AutoSave"] = $('#settingAutoSave').attr('checked') == 'checked';
     }
 }
 
 function autoSaveLastSubtitleAndVideo() {
     if (storage && $('#settingAutoSave').attr('checked') == 'checked') {
-        storage["SEOnline_subtitles"] = JSON.stringify(subtitles);
-        storage["SEOnline_video"] = v.src;
+        storage["aot_subtitles"] = JSON.stringify(subtitles);
+        storage["aot_video"] = v.src;
     }
 }
 
 function loadLastSubtitleAndVideoOrDefault() {
     if (storage && $('#settingAutoSave').attr('checked') == 'checked') {
-        var s = storage["SEOnline_subtitles"];
-        var videoFileUrl = storage["SEOnline_video"];
+        var s = storage["aot_subtitles"];
+        var videoFileUrl = storage["aot_video"];
         if (s != undefined && s != null && s.length > 0) {
             subtitles = JSON.parse(s);
             if (subtitles != null) {
+            	for (var i = 0; i < subtitles.length; i++) {
+            		subtitles[i] = new Paragraph(subtitles[i]);
+            	}
                 bindSubtitles();
                 if (videoFileUrl.length > 0)
                     v.src = videoFileUrl;
@@ -661,7 +680,7 @@ function loadSampleSubtitlesAndVideo() {
     var startUps = [{ "start": 1.981, "end": 4.682, "text": "We're quite content to be the odd<br>browser out." }, { "start": 5.302, "end": 8.958, "text": "We don't have a fancy stock abbreviation <br>to go alongside our name in the press." }, { "start": 9.526, "end": 11.324, "text": "We don't have a profit margin." }, { "start": 11.413, "end": 13.979, "text": "We don't have sacred rock stars<br>that we put above others." }, { "start": 14.509, "end": 16.913, "text": "We don't make the same deals,<br>sign the same contracts." }, { "start": 17.227, "end": 19.789, "text": "Or shake the same hands,<br>as everyone else." }, { "start": 20.568, "end": 22.568, "text": "And all this... is fine by us." }, { "start": 23.437, "end": 27.065, "text": "Were are a pack of independently, spirited, <br>fiercely unconventional people," }, { "start": 27.145, "end": 29.145, "text": "who do things a little differently." }, { "start": 29.81, "end": 31.81, "text": "Where another company may value<br>the bottom line..." }, { "start": 32.283, "end": 34.583, "text": "We value... well, values." }, { "start": 35.644, "end": 38.012, "text": "When a competitor considers <br>to make something propriertary." }, { "start": 38.642, "end": 40.642, "text": "We strive to set it free." }, { "start": 40.929, "end": 44.556, "text": "And while most products and technologies <br>are developed behind closed doors." }, { "start": 44.886, "end": 46.606, "text": "Ours are cultivated out in the open." }, { "start": 46.651, "end": 48.525, "text": "For everyone to see."}];
     for (var i = 0; i < startUps.length; i++) {
         var pIn = startUps[i];
-        subtitles.push(new paragraph(i + 1, pIn.start, pIn.end, pIn.text));
+        subtitles.push(new Paragraph(i + 1, pIn.start, pIn.end, pIn.text));
     }
     bindSubtitles();
     if (v.canPlayType("video/mp4") != "")
@@ -715,7 +734,7 @@ $(document).ready(function () {
     });
     $('#insertAtVideoPos').click(function () {
         if (v.readyState >= 1) {
-            var sub = new paragraph(0, v.currentTime, v.currentTime + 2, '');
+            var sub = new Paragraph(0, v.currentTime, v.currentTime + 2, '');
             insertSubAtTime(v.currentTime, sub);
             $("#currentText").focus();
         }
@@ -848,9 +867,21 @@ $(document).ready(function () {
                 v.currentTime -= 1.5;
         }
     });
-    $('#timeLineContextMenu').on('mouseleave', function () {
-        $('#timeLineContextMenu').hide('fade');
+    
+    
+    $( "#timelineContextMenu" ).menu({
+        select: function( event, ui ) {
+        	console.dir(event, ui);
+        },        
+        blur: function( event, ui ) {
+        	$(this).hide();
+        },
+        focus: function( event, ui ) {
+        	ui.item.parent().show();
+        }
+    
     });
+    
     $(canvas).mousemove(function (e) {
         var pos = e.pageX - $(canvas).offset().left;
         var cstyle = timeLineMouseOver(pos);
@@ -952,7 +983,7 @@ $(document).ready(function () {
         if (currentTr == null)
             return;
         var target = getParagraphFromTr(currentTr);
-        var sub = new paragraph(0, target.start - 2.7, target.start - 0.2, '');
+        var sub = new Paragraph(0, target.start - 2.7, target.start - 0.2, '');
         $(currentTr).before(getSubTr(sub));
         var tr = $(currentTr).prev();
         listViewChange(tr, e);
@@ -966,7 +997,7 @@ $(document).ready(function () {
         if (currentTr == null)
             return;
         var target = getParagraphFromTr(currentTr);
-        var sub = new paragraph(0, target.start - 2.7, target.start - 0.2, 2.5, '');
+        var sub = new Paragraph(0, target.start - 2.7, target.start - 0.2, 2.5, '');
         $(currentTr).before(getSubTr(sub));
         var tr = $(currentTr).prev();
         listViewChange(tr, e);
@@ -979,7 +1010,7 @@ $(document).ready(function () {
         if (currentTr == null)
             return;
         var target = getParagraphFromTr(currentTr);
-        var sub = new paragraph(0, target.end + 0.2, target.end + 2.5, '');
+        var sub = new Paragraph(0, target.end + 0.2, target.end + 2.5, '');
         $(currentTr).after(getSubTr(sub));
         var tr = $(currentTr).next();
         listViewChange(tr, e);
@@ -993,7 +1024,7 @@ $(document).ready(function () {
         if (currentTr == null)
             return;
         var target = getParagraphFromTr(currentTr);
-        var sub = new paragraph(0, target.end + 0.2, target.end + 2.5, '');
+        var sub = new Paragraph(0, target.end + 0.2, target.end + 2.5, '');
         $(currentTr).after(getSubTr(sub));
         var tr = $(currentTr).next();
         listViewChange(tr, e);
@@ -1012,7 +1043,6 @@ $(document).ready(function () {
         var sub = getParagraphFromTr(currentTr);
         var nextSub = getParagraphFromTr(nextTr);
         sub.end = nextSub.end;
-        sub.duration = sub.end - sub.start;
         sub.text = sub.text + "\n" + nextSub.text;
         currentTr.html(getSubTds(sub));
 
@@ -1035,7 +1065,7 @@ $(document).ready(function () {
             start = end;
             end = temp;
         }
-        var sub = new paragraph(0, start, end, "");
+        var sub = new Paragraph(0, start, end, "");
         insertSubAtTime(start, sub);
         bindSubtitles();
         timeLineNewStart = -1.0;
@@ -1047,6 +1077,9 @@ $(document).ready(function () {
 
     $('#timeLineContextMenu').on('click', function (e) {
         $('#listviewContextMenu').hide('fade');
+    });
+    $('#timeLineContextMenu').on('mouseleave', function () {
+        $('#timeLineContextMenu').hide('fade');
     });
 
     // top menu
@@ -1062,7 +1095,7 @@ $(document).ready(function () {
     $('#subtitleNew').on('click', function (e) {
         $(this).closest('ul').hide();
         subtitles = new Array();
-        subtitles.push(new paragraph(1, 0, 3, '-empty-'));
+        subtitles.push(new Paragraph(1, 0, 3, '-empty-'));
         bindSubtitles();
         SelectListViewIndex(0);
     });
@@ -1149,8 +1182,8 @@ $(document).ready(function () {
     $('#settingAutoSave').on('click', function (e) {
         saveSettings();
         if ($('#settingAutoSave').attr('checked') != 'checked') {
-            storage.removeItem("SEOnline_subtitles");
-            storage.removeItem("SEOnline_video");
+            storage.removeItem("aot_subtitles");
+            storage.removeItem("aot_video");
         }
     });
 
