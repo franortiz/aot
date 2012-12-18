@@ -194,7 +194,7 @@ function drawTimeLine(t) {
     var end;
 
     // draw black background
-    ctx.fillStyle = "#000000";
+    ctx.fillStyle = "#413E3C";
     ctx.fillRect(0, 0, w, h);
 
     // draw grid
@@ -258,7 +258,7 @@ function drawTimeLine(t) {
             subStartPos = secondsToTimeLinePosition(sub.start - timeLineStart);
             ctx.fillRect(subStartPos, 0, secondsToTimeLinePosition(sub.duration()), h);
             //ctx.fillText(sub.number + "\n" + sub.text, subStartPos + 5, 10);
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'; // paragrap h color
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'; // paragrap h color
             drawMultilineText("#" + sub.number + "\n" + sub.text, subStartPos + 5, 10, 10);
             //ctx.fillText(sub.text, subStartPos + 5, h-15);
         }
@@ -659,7 +659,7 @@ function loadLastSubtitleAndVideoOrDefault() {
     if (storage && $('#settingAutoSave').attr('checked') == 'checked') {
         var s = storage["aot_subtitles"];
         var videoFileUrl = storage["aot_video"];
-        if (s != undefined && s != null && s.length > 0) {
+        if (s != undefined && s != null && s.length > 0 && videoFileUrl != null) {
             subtitles = JSON.parse(s);
             if (subtitles != null) {
             	for (var i = 0; i < subtitles.length; i++) {
@@ -690,21 +690,57 @@ function loadSampleSubtitlesAndVideo() {
         v.src = 'http://videos-cdn.mozilla.net/brand/Mozilla_Firefox_Manifesto_v0.2_640.webm';
 }
 
+function createToolbar() {	
+	
+	$('#toolbar button').button({
+        icons: {
+        	secondary: "ui-icon-triangle-1-s"
+        }
+    }).click(function() {
+        var menu = $('#' + $(this).attr('id') + '-items').show().position({
+            my: "left top",
+            at: "left bottom",
+            of: this
+        });
+        $( document ).one( "click", function() {
+            menu.hide();
+        });
+        return false;
+    }).each(function(i, el) {    	
+    	$('#' + $(this).attr('id') + '-items').menu();
+    });
+   
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 $(document).ready(function () {
     v = $('#video')[0];
     $("#listviewContextMenu").hide();
-    $('#pause').click(function () {
+    
+    createToolbar();
+    
+    $('#pause').button({
+    	text: false,
+        icons: {
+            primary: "ui-icon-pause"
+        }}
+    ).click(function () {
         if (v.readyState >= 1) {
             v.pause();
         }
     });
-    $('#play').click(function () {
+    $('#play').button({
+    	text: false,
+        icons: {
+            primary: "ui-icon-play"
+        }}
+    ).click(function () {
         if (v.readyState >= 1) {
             v.play();
         }
     });
+    
     $('#setStart').click(function () {
         if (v.readyState >= 1) {
             v.play();
@@ -813,34 +849,6 @@ $(document).ready(function () {
         if (v.readyState >= 1) {
             v.currentTime = start;
         }
-    });
-
-    $('#autoBreakText').on('click', function (e) {
-        var text = $('#currentText').val();
-        if (text.length < 2)
-            return;
-        $.ajax({
-            type: 'POST',
-            url: "/SubtitleEdit/OnlineAutoBreak",
-            data: 'text=' + text,
-            success: function (data) {
-                $('#currentText').val(data);
-                currentTextChange();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert("Error: " + textStatus);
-            }
-        });
-    });
-
-    $('#unBreakText').on('click', function (e) {
-        var text = $('#currentText').val();
-        if (text.length < 2)
-            return;
-        text = text.replace("\n", " ");
-        text = text.replace("  ", " ");
-        $('#currentText').val(text);
-        currentTextChange();
     });
 
     canvas = document.getElementById('timeLineCanvas');
@@ -1217,7 +1225,7 @@ $(document).ready(function () {
     $('#videoOpenLocalSource').on('change', function (e) {  
     	if(v.canPlayType(this.files[0].type)) {    		
     		v.src = URL.createObjectURL(this.files[0]);    	
-    		hideMsgBox();
+    		$("#videoOpenText").dialog('close');
     		v.play();
     	}
     });

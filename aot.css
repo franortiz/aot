@@ -1,37 +1,96 @@
+/* style reset */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
 body {
-	font: 83%/1.4 arial, helvetica, sans-serif;
-	padding: 5px 15px;
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+body {
+	font: 70%/1.4 arial, helvetica, sans-serif;
+	padding: 5px;
 	margin: 0;	
 	position: absolute;
 	left: 0px;
 	top: 0px;
 	-webkit-font-smoothing: antialiased;
-	background-color: #bbbbbb;
-	background-color: rgb(48, 48, 48);
-	color: #fff;
+	background-color: #FCF9F7;
+	color: #000;
 }
-
+ 
 a {
-	text-decoration: underline;
-	font-weight: bold;
+	text-decoration: none;
 }
-
+/*
 a:link,a:visited {
 	color: #eeeeff;
 }
+*/
 
-a:hover {
-	color: white;
+ 
+#main {
+	font: 110%/1.4 arial, helvetica, sans-serif;
 }
 
+#main table td {
+	padding: 5px;
+} 
+ 
+ 
 #title {
 	padding: 0px;	
 	margin: 0px 25px 15px 0;
 	float: left;
 }
 
+#toolbar {
+	display: inline;
+	padding: 10px 4px;
+}
+
+.menu-items {
+	display: none;
+	position: absolute;
+}
+
 #listView {
-	background-color: rgb(48, 48, 48);
 	width: 620px;
 	float: left;
 	border-color: #eeeeee;
@@ -40,11 +99,12 @@ a:hover {
 }
 
 #subtitleTableHeader {
-	background-color: #888888;
+	background-color: #B4B4B4;
 	border-style: solid;
 	border-width: 1px;
 	border-color: #eeeeee;
 	width: 100%;
+	color: #fff;
 }
 
 #subtitleTableHeader tr {
@@ -65,7 +125,7 @@ a:hover {
 }
 
 .listViewAlternate {
-	background-color: rgb(78, 78, 78);
+	background-color: #D3D1D1;
 }
 
 #subtitleTable {
@@ -77,7 +137,7 @@ a:hover {
 	overflow-y: scroll;
 	border-style: solid;
 	border-width: 0px;
-	border-color: #5e5e5e;
+	border-color: #D3D1D1;
 	border-bottom-width: 1px;
 }
 
@@ -85,26 +145,22 @@ a:hover {
 	margin-top: 3px;
 }
 
-#currentText {
-	float: left;
+.subtitleTextArea {
 	font: 100% arial, helvetica, sans-serif;
-	overflow: auto;
-	width: 475px;
-	height: 50px;
+	float: left;
+	overflow: hidden;
+	width: 300px;
+	max-width: 300px;
+	max-height: 40px;
+	text-align: center;
 }
 
-#autoBreakText {
-	position: relative;
-	top: 6px;
-	margin-left: 9px;
-	width: 75px;
+#originalText {
+	margin-right: 6px;
 }
 
-#unBreakText {
-	position: relative;
-	top: 16px;
-	margin-left: 9px;
-	width: 75px;
+#currentText {
+	
 }
 
 #videoPlayerContainer {
@@ -124,34 +180,35 @@ a:hover {
 #subtitleTable td,th {
 	overflow: hidden;
 	text-align: left;
+	padding: 3px 5px;
 }
 
 .subSelected {
-	background-color: Lime;
+	background-color: #66ee66;
 }
 
 .subNumber {
-	width: 50px;
+	width: 30px;
 }
 
 .subStart {
-	width: 80px;
-}
-
-.subEnd {
-	width: 80px;
-}
-
-.subDuration {
 	width: 70px;
 }
 
+.subEnd {
+	width: 70px;
+}
+
+.subDuration {
+	width: 50px;
+}
+
 .subText {
-	width: 306px;
+	width: 329px;
 }
 
 .subTextHeader {
-	width: 311px;
+	width: 345px;
 }
 
 .highlight {
@@ -244,8 +301,10 @@ a:hover {
 	display: block;
 	position: absolute;
 	padding-top: 5px;
-	background-color: Lime;
+	background-color: #333;
 }
+
+
 
 #previewContainer {
 	background-color: transparent;
@@ -265,6 +324,7 @@ a:hover {
 	text-align: center;
 	position: absolute;
 	bottom: 0px;
+	color: #fff;
 }
 
 #backgroundFiller {
@@ -329,7 +389,12 @@ iframe {
 #firstControls {
 	float: left;
 	position: relative;
-	top: 8px;
+	top: 7px;
+}
+
+#firstControls button {
+	padding: 4px 0px;
+	
 }
 
 .ControlBarItem {
@@ -349,25 +414,21 @@ iframe {
 	padding-left: 5px;
 	padding-bottom: 5px;
 	text-decoration: none;
-	color: lime;
+	color: #333;
 }
 
 .ControlBarButton {
 	padding: 3px;
 	text-decoration: none;
-	color: lime;
+	color: #666;
 }
 
 .ControlBarButton:hover {
 	padding: 3px;
 	text-decoration: none;
-	color: lime;
+	color: #000;
 }
 
-#play {
-	padding-left: 6px;
-	padding-right: 6px;
-}
 
 #pause {
 	padding-left: 6px;
@@ -375,8 +436,8 @@ iframe {
 }
 
 #controlBarSliderPosition {
-	margin-left: 14px;
-	width: 400px;
+	margin-left: 12px;
+	width: 385px;
 	float: left;
 	position: relative;
 	top: 12px;
@@ -393,14 +454,14 @@ iframe {
 #nextControls {
 	float: left;
 	position: relative;
-	left: -42px;
-	top: 22px;
+	left: -71px;
+	top: 23px;
 	padding-left: 0px;
 	margin-bottom: 30px;
 }
 
 input[type="button"]:hover {
-	color: lime;
+	color: #333;
 }
 
 #timeLineCanvas {

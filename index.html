@@ -9,14 +9,62 @@
         <meta name="copyright" content="aRGENTeaM Subtitle Translator" />
         <meta name="copyright" content="Based on www.nikse.dk/SubtitleEdit/Online/" />
 		<link rel="icon" type="image/png" href="icon.png">	
-        <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/dark-hive/jquery-ui.css" />
+        <!-- <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/dark-hive/jquery-ui.css" /> -->
+        <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/smoothness/jquery-ui.css" />
         <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>    
         <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
-        <script src="jquery.mousewheel.min.js"></script>        
+        <script src="jquery.mousewheel.min.js"></script>      
 		<link href="aot.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<h1 id="title">aRGENTeaM Online Subtitle Editor</h1>
+		
+		<div id="toolbar" class="ui-widget-header ui-corner-all">
+			<button id="subtitle-menu">Subtitles</button>			
+			<button id="video-menu">Video</button>			
+			<button id="options-menu">Options</button>
+			<button id="about-menu">About</button>
+		</div>
+		<ul id="subtitle-menu-items" class="menu-items">
+            <li><a id="subtitleNew" href="#">New</a></li>
+            <li><a id="subtitleOpen" href="#">Open...</a></li>
+            <li><a id="subtitleDownload" href="#">Save/download...</a></li>
+        </ul>
+		<ul id="video-menu-items" class="menu-items">
+            <li><a id="videoOpen" href="#">Open video...</a></li>
+        </ul>
+        <ul id="options-menu-items" class="menu-items">
+            <li><a id="optionsSettings" href="#">Settings</a></li>
+        </ul>
+		<ul id="about-menu-items" class="menu-items">
+            <li><a id="aboutHelp" href="#">Help</a></li>
+            <li><a id="aboutAbout" href="#">About SE Online</a></li>
+        </ul>
+		<!-- 
+		<div id="menuBarButtons">
+			<a href="#subtitle-menu-items" class="fg-button fg-button-icon-right ui-widget ui-state-default ui-corner-all" 
+				id="subtitle-menu"><span class="ui-icon ui-icon-triangle-1-s"></span>Subtitle</a>
+			<div id="subtitle-menu-items" class="hidden">
+				<ul>
+					<li><a href="#">Apples</a></li>
+					<li><a href="#">Oranges</a></li>
+					<li><a href="#">Bananas</a></li>
+					<li><a href="#">Cheetos</a></li>
+				</ul>
+			</div>
+			
+			<a href="#video-menu-items" class="fg-button fg-button-icon-right ui-widget ui-state-default ui-corner-all" 
+				id="video-menu"><span class="ui-icon ui-icon-triangle-1-s"></span>Video</a>
+			<div id="video-menu-items" class="hidden">
+				<ul>
+					<li><a href="#">Apples</a></li>
+					<li><a href="#">Oranges</a></li>
+					<li><a href="#">Bananas</a></li>
+					<li><a href="#">Cheetos</a></li>
+				</ul>
+			</div>
+		</div>
+		
         <div id="mainMenu">
             <ul>
                 <li><a href="#">Subtitle</a>
@@ -57,69 +105,71 @@
                 </li>
             </ul>
         </div>
-        <table>
-            <tr>
-                <td>
-		            <div id="listView">
-                        <table id="subtitleTableHeader">
-                            <tr>
-                                <th class="subNumber">&nbsp;#</th>                
-                                <th class="subStart">&nbsp;Start</th>
-                                <th class="subEnd">&nbsp;End</th>
-                                <th class="subDuration">&nbsp;Duration</th>
-                                <th class="subTextHeader">&nbsp;Text</th>
-                            </tr>
-                        </table>
-                        <div id="tableContainer">
-			                <table id="subtitleTable">
-                                <tbody id="subtitleTableBody">
-                                </tbody>
-			                </table>
-                        </div>
-                        <div id="currentSub">
-                            <textarea id="currentText" class="ui-widget-content"></textarea>                           
-                            <div>
-                                <a href="#" id="autoBreakText" class="ControlBarButton ui-state-default ui-corner-all" title="Auto break current text">Auto-break</a><br />
-                                <a href="#" id="unBreakText" class="ControlBarButton ui-state-default ui-corner-all" title="Auto break current text">Un-break</a>
-                            </div>
-                        </div> 
-		            </div>
-                </td>
-                <td>
-                    <div id="videoPlayerContainer">
-                        <div>
-                            <div id="videoResolution"></div>
-                            <div id="videoTime"></div>
-                        </div>
-                        <video id="video" onerror="failed(event)">
-                        </video>
-                        <div>
-                            <div id="ControlBar">
-                                <div id="firstControls">
-                                    <a class="ControlBarButton ui-state-default ui-corner-all" href="#" id="play" title="Play">►</a>
-                                    <a class="ControlBarButton ui-state-default ui-corner-all" href="#" id="pause" title="Pause">‖</a>
-                                </div>
-                                <div id="controlBarSliderPosition" title="Video position"></div>                                
-                                <div id="controlBarSliderVolume" title="Video volume"></div>                                
-                                <br />
-                                <div id="nextControls">
-                                    <a href="#" id="goBack3Secs" class="ControlBarButton ui-state-default ui-corner-all" title="Go back 3 seconds">&lt;3s</a>
-                                    <a href="#" id="goBack100Ms" class="ControlBarButton ui-state-default ui-corner-all" title="Go back 100 milliseconds">&lt;100ms</a>
-                                    <a href="#" id="play2SecsAndBack" class="ControlBarButton ui-state-default ui-corner-all" title="Play 2 seconds and back to current position">2s+back</a>
-                                    
-                                </div>
-                            </div>            
-                        </div>
-                        <div id="previewContainer"><div id="preview"></div></div>
-                    </div>  
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <canvas id="timeLineCanvas" width="1236" height="150"></canvas>
-                </td>
-            </tr>
-        </table>
+		 -->
+        <div id="main">
+        	<table>
+	            <tr>
+	                <td>
+			            <div id="listView">
+	                        <table id="subtitleTableHeader">
+	                            <tr>
+	                                <th class="subNumber">&nbsp;#</th>                
+	                                <th class="subStart">&nbsp;Start</th>
+	                                <th class="subEnd">&nbsp;End</th>
+	                                <th class="subDuration">&nbsp;Duration</th>
+	                                <th class="subTextHeader">&nbsp;Text</th>
+	                            </tr>
+	                        </table>
+	                        <div id="tableContainer">
+				                <table id="subtitleTable">
+	                                <tbody id="subtitleTableBody">
+	                                </tbody>
+				                </table>
+	                        </div>
+	                        <div id="currentSub">
+	                        	<textarea id="originalText" class="subtitleTextArea ui-widget-content" readonly="readonly"></textarea>
+	                            <textarea id="currentText" class="subtitleTextArea ui-widget-content"></textarea>                           
+	                        </div> 
+			            </div>
+	                </td>
+	                <td>
+	                    <div id="videoPlayerContainer">
+	                        <div>
+	                            <div id="videoResolution"></div>
+	                            <div id="videoTime"></div>
+	                        </div>
+	                        <video id="video" onerror="failed(event)">
+	                        </video>
+	                        <div>
+	                            <div id="ControlBar">
+	                                <div id="firstControls">
+	                                    <button id="play"></button>
+	                                     <button id="pause"></button>
+	                                    <!-- <a class="ControlBarButton ui-state-default ui-corner-all" href="#" id="pause" title="Pause">‖</a> -->
+	                                </div>
+	                                <div id="controlBarSliderPosition" title="Video position"></div>                                
+	                                <div id="controlBarSliderVolume" title="Video volume"></div>                                
+	                                <br />
+	                                <div id="nextControls">
+	                                    <a href="#" id="goBack3Secs" class="ControlBarButton ui-state-default ui-corner-all" title="Go back 3 seconds">&lt;3s</a>
+	                                    <a href="#" id="goBack100Ms" class="ControlBarButton ui-state-default ui-corner-all" title="Go back 100 milliseconds">&lt;100ms</a>
+	                                    <a href="#" id="play2SecsAndBack" class="ControlBarButton ui-state-default ui-corner-all" title="Play 2 seconds and back to current position">2s+back</a>
+	                                    
+	                                </div>
+	                            </div>            
+	                        </div>
+	                        <div id="previewContainer"><div id="preview"></div></div>
+	                    </div>  
+	                </td>
+	            </tr>
+	            <tr>
+	                <td colspan="2">
+	                    <canvas id="timeLineCanvas" width="1236" height="150"></canvas>
+	                </td>
+	            </tr>
+	        </table>
+        </div>
+        
         <div id="listviewContextMenu">
             <ul class="contextMenu">
                 <li id="lineDelete">Delete line</li>
